@@ -401,6 +401,7 @@ static void prepare_context(void)
 	ctx.env.server_port = getenv("SERVER_PORT");
 	ctx.env.http_cookie = getenv("HTTP_COOKIE");
 	ctx.env.http_referer = getenv("HTTP_REFERER");
+	ctx.env.remote_user = getenv("REMOTE_USER");
 	ctx.env.content_length = getenv("CONTENT_LENGTH") ? strtoul(getenv("CONTENT_LENGTH"), NULL, 10) : 0;
 	ctx.env.authenticated = 0;
 	ctx.page.mimetype = "text/html";

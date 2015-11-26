@@ -297,6 +297,7 @@ struct cgit_environment {
 	const char *server_port;
 	const char *http_cookie;
 	const char *http_referer;
+	const char *remote_user;
 	unsigned int content_length;
 	int authenticated;
 };
