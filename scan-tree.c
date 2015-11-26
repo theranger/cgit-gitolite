@@ -74,6 +74,14 @@ static char *xstrrchr(char *s, char *from, int c)
 	return from < s ? NULL : from;
 }
 
+static int open_project_filter(const char *action, const char *repo) {
+	return cgit_open_filter(ctx.cfg.project_filter, action, repo,
+			ctx.env.remote_user ? ctx.env.remote_user : "",
+			ctx.env.server_name ? ctx.env.server_name : "",
+			ctx.env.path_info ? ctx.env.path_info : ""
+	);
+}
+
 static void add_repo(const char *base, struct strbuf *path, repo_config_fn fn)
 {
 	struct stat st;
@@ -114,6 +122,11 @@ static void add_repo(const char *base, struct strbuf *path, repo_config_fn fn)
 		strbuf_setlen(&rel, rel.len - 5);
 	else if (rel.len && rel.buf[rel.len - 1] == '/')
 		strbuf_setlen(&rel, rel.len - 1);
+
+	if(ctx.cfg.project_filter) {
+		if(open_project_filter("filter", rel.buf)) return;
+		if(cgit_close_filter(ctx.cfg.project_filter) < 1) return;
+	}
 
 	repo = cgit_add_repo(rel.buf);
 	config_fn = fn;
@@ -261,6 +274,11 @@ void scan_projects(const char *path, const char *projectsfile, repo_config_fn fn
 
 void scan_tree(const char *path, repo_config_fn fn)
 {
+	if (ctx.cfg.project_filter) {
+		open_project_filter("init", path);
+		cgit_close_filter(ctx.cfg.project_filter);
+	}
+
 	if (ctx.cfg.project_list) {
 		scan_projects(path, ctx.cfg.project_list, fn);
 		return;
