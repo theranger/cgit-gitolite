@@ -30,6 +30,7 @@ void cgit_cleanup_filters(void)
 	reap_filter(ctx.cfg.email_filter);
 	reap_filter(ctx.cfg.owner_filter);
 	reap_filter(ctx.cfg.auth_filter);
+	reap_filter(ctx.cfg.project_filter);
 	for (i = 0; i < cgit_repolist.count; ++i) {
 		reap_filter(cgit_repolist.repos[i].about_filter);
 		reap_filter(cgit_repolist.repos[i].commit_filter);
@@ -434,6 +435,10 @@ struct cgit_filter *cgit_new_filter(const char *cmd, filter_type filtertype)
 		case SOURCE:
 		case ABOUT:
 			argument_count = 1;
+			break;
+
+		case PROJECT:
+			argument_count = 5;
 			break;
 
 		case COMMIT:

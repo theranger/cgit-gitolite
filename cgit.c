@@ -206,6 +206,8 @@ static void config_cb(const char *name, const char *value)
 		ctx.cfg.owner_filter = cgit_new_filter(value, OWNER);
 	else if (!strcmp(name, "auth-filter"))
 		ctx.cfg.auth_filter = cgit_new_filter(value, AUTH);
+	else if (!strcmp(name, "project-filter"))
+		ctx.cfg.project_filter = cgit_new_filter(value, PROJECT);
 	else if (!strcmp(name, "embedded"))
 		ctx.cfg.embedded = atoi(value);
 	else if (!strcmp(name, "max-atom-items"))
