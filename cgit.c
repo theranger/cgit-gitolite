@@ -227,9 +227,6 @@ static void config_cb(const char *name, const char *value)
 	else if (!strcmp(name, "scan-path"))
 		if (!ctx.cfg.nocache && ctx.cfg.cache_size)
 			process_cached_repolist(expand_macros(value));
-		else if (ctx.cfg.project_list)
-			scan_projects(expand_macros(value),
-				      ctx.cfg.project_list, repo_config);
 		else
 			scan_tree(expand_macros(value), repo_config);
 	else if (!strcmp(name, "scan-hidden-path"))
@@ -870,10 +867,7 @@ static int generate_cached_repolist(const char *path, const char *cached_rc)
 		goto out;
 	}
 	idx = cgit_repolist.count;
-	if (ctx.cfg.project_list)
-		scan_projects(path, ctx.cfg.project_list, repo_config);
-	else
-		scan_tree(path, repo_config);
+	scan_tree(path, repo_config);
 	print_repolist(f, &cgit_repolist, idx);
 	if (rename(locked_rc.buf, cached_rc))
 		fprintf(stderr, "[cgit] Error renaming %s to %s: %s (%d)\n",
@@ -901,13 +895,9 @@ static void process_cached_repolist(const char *path)
 		 * if we fail to generate a cached repolist, we need to
 		 * invoke scan_tree manually.
 		 */
-		if (generate_cached_repolist(path, cached_rc.buf)) {
-			if (ctx.cfg.project_list)
-				scan_projects(path, ctx.cfg.project_list,
-					      repo_config);
-			else
-				scan_tree(path, repo_config);
-		}
+		if (generate_cached_repolist(path, cached_rc.buf))
+			scan_tree(path, repo_config);
+
 		goto out;
 	}
 
