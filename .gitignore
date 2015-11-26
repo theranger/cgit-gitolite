@@ -2,6 +2,7 @@
 /cgit
 /git
 /.depend
+/.settings
 cgit.conf
 CGIT-CFLAGS
 VERSION
