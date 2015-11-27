@@ -74,7 +74,8 @@ static char *xstrrchr(char *s, char *from, int c)
 	return from < s ? NULL : from;
 }
 
-static int open_project_filter(const char *action, const char *repo) {
+static int open_project_filter(const char *action, const char *repo)
+{
 	return cgit_open_filter(ctx.cfg.project_filter, action, repo,
 			ctx.env.remote_user ? ctx.env.remote_user : "",
 			ctx.env.server_name ? ctx.env.server_name : "",
@@ -274,8 +275,7 @@ void scan_projects(const char *path, const char *projectsfile, repo_config_fn fn
 
 void scan_tree(const char *path, repo_config_fn fn)
 {
-	if (ctx.cfg.project_filter) {
-		open_project_filter("init", path);
+	if (ctx.cfg.project_filter && !open_project_filter("init", path)) {
 		cgit_close_filter(ctx.cfg.project_filter);
 	}
 
