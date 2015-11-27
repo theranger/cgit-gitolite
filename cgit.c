@@ -888,6 +888,8 @@ static void process_cached_repolist(const char *path)
 	hash = hash_str(path);
 	if (ctx.cfg.project_list)
 		hash += hash_str(ctx.cfg.project_list);
+	if (ctx.env.remote_user)
+		hash += hash_str(ctx.env.remote_user);
 	strbuf_addf(&cached_rc, "%s/rc-%8lx", ctx.cfg.cache_root, hash);
 
 	if (stat(cached_rc.buf, &st)) {
