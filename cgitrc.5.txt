@@ -329,6 +329,15 @@ project-list::
 	should loaded as git repositories. This must be defined prior to
 	scan-path. Default value: none. See also: scan-path, "MACRO
 	EXPANSION".
+	
+project-filter::
+	Specifies a command which will be invoked during repository scanning to
+	authorize or deny access to the repo. Receives user name from HTTP
+	Basic Auth REMOTE_USER variable and current repo name. Return value
+	indicates whether access is authorized or not. Differs form auth filter
+	by effectively hiding repos that user has no access. If filter is not
+	specified, authorization will not be done. Default value: none. See also:
+	"FILTER API".
 
 readme::
 	Text which will be used as default value for "repo.readme". Multiple
@@ -704,6 +713,26 @@ auth filter::
 	HTTP headers, each followed by a newline.
 
 	Please see `filters/simple-authentication.lua` for a clear example
+	script that may be modified.
+	
+project filter::
+	The project filer receives 5 parameters:
+	  - filter action, explained below, which specifies which action the
+	    filter is called for
+	  - cgit repo
+	  - http remote_user, as obtained from REMOTE_USER environment variable
+	  - http server name
+	  - http path
+	When filter action is "init", filter can build the access list in advance
+	for the http remote_user. This avoids massive hammering against third-party
+	systems (e.g. SQL, gitolite) during repo list processing. When filter action
+	is "filter" it should return integer value 1 if access is authorized or
+	0 if it is denied. Note, that this filter is not for authentication. Any
+	method that can set server's REMOTE_USER environment variable can be used
+	for verifying the user name. This filter only authorizes access to the
+	repositories for that user.
+	
+	Please see `filters/gitolite-authorization.lua` for a complete example
 	script that may be modified.
 
 
