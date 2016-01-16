@@ -741,7 +741,7 @@ void cgit_print_docstart(void)
 	html("<title>");
 	html_txt(ctx.page.title);
 	html("</title>\n");
-	htmlf("<meta name='generator' content='cgit %s'/>\n", cgit_version);
+	htmlf("<meta name='generator' content='cgit %s with gitolite patch %s'/>\n", cgit_version, cgit_gitolite_version);
 	if (ctx.cfg.robots && *ctx.cfg.robots)
 		htmlf("<meta name='robots' content='%s'/>\n", ctx.cfg.robots);
 	html("<link rel='stylesheet' type='text/css' href='");
