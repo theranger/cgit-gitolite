@@ -1,5 +1,6 @@
 all::
 
+CGIT_GITOLITE_VERSION = v0.1
 CGIT_VERSION = v0.12
 CGIT_SCRIPT_NAME = cgit.cgi
 CGIT_SCRIPT_PATH = /var/www/htdocs/cgit
@@ -39,7 +40,7 @@ DOC_PDF  = $(patsubst %.txt,%.pdf,$(MAN_TXT))
 #
 -include cgit.conf
 
-export CGIT_VERSION CGIT_SCRIPT_NAME CGIT_SCRIPT_PATH CGIT_DATA_PATH CGIT_CONFIG CACHE_ROOT
+export CGIT_GITOLITE_VERSION CGIT_VERSION CGIT_SCRIPT_NAME CGIT_SCRIPT_PATH CGIT_DATA_PATH CGIT_CONFIG CACHE_ROOT
 
 #
 # Define a way to invoke make in subdirs quietly, shamelessly ripped

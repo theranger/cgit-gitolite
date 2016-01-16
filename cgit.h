@@ -321,6 +321,7 @@ struct cgit_snapshot_format {
 	int bit;
 };
 
+extern const char *cgit_gitolite_version;
 extern const char *cgit_version;
 
 extern struct cgit_repolist cgit_repolist;

@@ -17,6 +17,7 @@
 #include "ui-summary.h"
 #include "scan-tree.h"
 
+const char *cgit_gitolite_version = CGIT_GITOLITE_VERSION;
 const char *cgit_version = CGIT_VERSION;
 
 static void add_mimetype(const char *name, const char *value)

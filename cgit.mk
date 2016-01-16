@@ -11,7 +11,7 @@ CGIT_PREFIX = ../
 # main Makefile - they are defined there.
 
 $(CGIT_PREFIX)VERSION: force-version
-	@cd $(CGIT_PREFIX) && '$(SHELL_PATH_SQ)' ./gen-version.sh "$(CGIT_VERSION)"
+	@cd $(CGIT_PREFIX) && '$(SHELL_PATH_SQ)' ./gen-version.sh "$(CGIT_GITOLITE_VERSION)"
 -include $(CGIT_PREFIX)VERSION
 .PHONY: force-version
 
@@ -99,6 +99,7 @@ CGIT_OBJS := $(addprefix $(CGIT_PREFIX),$(CGIT_OBJ_NAMES))
 CGIT_VERSION_OBJS := $(addprefix $(CGIT_PREFIX),cgit.o cgit.sp)
 $(CGIT_VERSION_OBJS): $(CGIT_PREFIX)VERSION
 $(CGIT_VERSION_OBJS): EXTRA_CPPFLAGS = \
+	-DCGIT_GITOLITE_VERSION='"$(CGIT_GITOLITE_VERSION)"' \
 	-DCGIT_VERSION='"$(CGIT_VERSION)"'
 
 # Git handles dependencies using ":=" so dependencies in CGIT_OBJ are not

@@ -9,7 +9,7 @@ then
 	V=$(git describe --abbrev=4 HEAD 2>/dev/null)
 fi
 
-new="CGIT_VERSION = $V"
+new="CGIT_GITOLITE_VERSION = $V"
 old=$(cat VERSION 2>/dev/null)
 
 # Exit if VERSION is uptodate
