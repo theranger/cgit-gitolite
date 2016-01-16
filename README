@@ -44,6 +44,21 @@ If this is not specified, the Lua implementation will be auto-detected,
 preferring LuaJIT if many are present. Acceptable values are generally "lua",
 "luajit", "lua5.1", and "lua5.2".
 
+Merging cgit changes
+---------------------
+
+If you have cloned this repository and want to update it with changes from original
+cgit repo, then add second remote that points to vanilla cgit master branch:
+
+	$ git remote add -t master --no-tags cgit git://git.zx2c4.com/cgit
+	
+Update all remotes:
+
+	$ git remote update
+	
+Merge all updates to local master branch:
+
+	$ git pull cgit master
 
 Dependencies
 ------------
