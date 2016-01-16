@@ -161,14 +161,14 @@ void cgit_print_blob(const char *hex, char *path, const char *head, int file_onl
 	}
 
 	buf[size] = '\0';
-	ctx.page.mimetype = ctx.qry.mimetype;
-	if (!ctx.page.mimetype) {
-		if (buffer_is_binary(buf, size))
-			ctx.page.mimetype = "application/octet-stream";
-		else
-			ctx.page.mimetype = "text/plain";
-	}
+	if (buffer_is_binary(buf, size))
+		ctx.page.mimetype = "application/octet-stream";
+	else
+		ctx.page.mimetype = "text/plain";
 	ctx.page.filename = path;
+
+	html("X-Content-Type-Options: nosniff\n");
+	html("Content-Security-Policy: default-src 'none'\n");
 	cgit_print_http_headers();
 	html_raw(buf, size);
 	free(buf);

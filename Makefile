@@ -1,6 +1,6 @@
 all::
 
-CGIT_VERSION = v0.11.2
+CGIT_VERSION = v0.12
 CGIT_SCRIPT_NAME = cgit.cgi
 CGIT_SCRIPT_PATH = /var/www/htdocs/cgit
 CGIT_DATA_PATH = $(CGIT_SCRIPT_PATH)
@@ -14,7 +14,7 @@ htmldir = $(docdir)
 pdfdir = $(docdir)
 mandir = $(prefix)/share/man
 SHA1_HEADER = <openssl/sha.h>
-GIT_VER = 2.6.1
+GIT_VER = 2.7.0
 GIT_URL = https://www.kernel.org/pub/software/scm/git/git-$(GIT_VER).tar.gz
 INSTALL = install
 COPYTREE = cp -r

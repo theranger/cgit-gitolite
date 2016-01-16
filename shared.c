@@ -61,6 +61,7 @@ struct cgit_repo *cgit_add_repo(const char *url)
 	ret->enable_log_linecount = ctx.cfg.enable_log_linecount;
 	ret->enable_remote_branches = ctx.cfg.enable_remote_branches;
 	ret->enable_subject_links = ctx.cfg.enable_subject_links;
+	ret->enable_html_serving = ctx.cfg.enable_html_serving;
 	ret->max_stats = ctx.cfg.max_stats;
 	ret->branch_sort = ctx.cfg.branch_sort;
 	ret->commit_sort = ctx.cfg.commit_sort;
@@ -402,8 +403,8 @@ void cgit_diff_commit(struct commit *commit, filepair_fn fn, const char *prefix)
 	unsigned char *old_sha1 = NULL;
 
 	if (commit->parents)
-		old_sha1 = commit->parents->item->object.sha1;
-	cgit_diff_tree(old_sha1, commit->object.sha1, fn, prefix,
+		old_sha1 = commit->parents->item->object.oid.hash;
+	cgit_diff_tree(old_sha1, commit->object.oid.hash, fn, prefix,
 		       ctx.qry.ignorews);
 }
 

@@ -101,6 +101,7 @@ struct cgit_repo {
 	int enable_log_linecount;
 	int enable_remote_branches;
 	int enable_subject_links;
+	int enable_html_serving;
 	int max_stats;
 	int branch_sort;
 	int commit_sort;
@@ -173,7 +174,6 @@ struct cgit_query {
 	char *sha2;
 	char *path;
 	char *name;
-	char *mimetype;
 	char *url;
 	char *period;
 	int   ofs;
@@ -236,6 +236,7 @@ struct cgit_config {
 	int enable_log_linecount;
 	int enable_remote_branches;
 	int enable_subject_links;
+	int enable_html_serving;
 	int enable_tree_linenumbers;
 	int enable_git_config;
 	int local_time;

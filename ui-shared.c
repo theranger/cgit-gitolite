@@ -525,7 +525,7 @@ void cgit_object_link(struct object *obj)
 {
 	char *page, *shortrev, *fullrev, *name;
 
-	fullrev = sha1_to_hex(obj->sha1);
+	fullrev = oid_to_hex(&obj->oid);
 	shortrev = xstrdup(fullrev);
 	shortrev[10] = '\0';
 	if (obj->type == OBJ_COMMIT) {
@@ -692,9 +692,11 @@ void cgit_print_http_headers(void)
 		htmlf("Content-Type: %s\n", ctx.page.mimetype);
 	if (ctx.page.size)
 		htmlf("Content-Length: %zd\n", ctx.page.size);
-	if (ctx.page.filename)
-		htmlf("Content-Disposition: inline; filename=\"%s\"\n",
-		      ctx.page.filename);
+	if (ctx.page.filename) {
+		html("Content-Disposition: inline; filename=\"");
+		html_header_arg_in_quotes(ctx.page.filename);
+		html("\"\n");
+	}
 	if (!ctx.env.authenticated)
 		html("Cache-Control: no-cache, no-store\n");
 	htmlf("Last-Modified: %s\n", http_date(ctx.page.modified));
@@ -709,7 +711,9 @@ void cgit_print_http_headers(void)
 void cgit_redirect(const char *url, bool permanent)
 {
 	htmlf("Status: %d %s\n", permanent ? 301 : 302, permanent ? "Moved" : "Found");
-	htmlf("Location: %s\n\n", url);
+	html("Location: ");
+	html_url_path(url);
+	html("\n\n");
 	exit(0);
 }
 
@@ -889,6 +893,9 @@ void cgit_add_hidden_formfields(int incl_head, int incl_search,
 
 static const char *hc(const char *page)
 {
+	if (!ctx.qry.page)
+		return NULL;
+
 	return strcmp(ctx.qry.page, page) ? NULL : "active";
 }
 

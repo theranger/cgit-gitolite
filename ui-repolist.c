@@ -15,7 +15,7 @@ static time_t read_agefile(char *path)
 {
 	time_t result;
 	size_t size;
-	char *buf;
+	char *buf = NULL;
 	struct strbuf date_buf = STRBUF_INIT;
 
 	if (readfile(path, &buf, &size)) {
@@ -103,6 +103,26 @@ static int is_in_url(struct cgit_repo *repo)
 		return 1;
 	if (repo->url && starts_with(repo->url, ctx.qry.url))
 		return 1;
+	return 0;
+}
+
+static int is_visible(struct cgit_repo *repo)
+{
+	if (repo->hide || repo->ignore)
+		return 0;
+	if (!(is_match(repo) && is_in_url(repo)))
+		return 0;
+	return 1;
+}
+
+static int any_repos_visible(void)
+{
+	int i;
+
+	for (i = 0; i < cgit_repolist.count; i++) {
+		if (is_visible(&cgit_repolist.repos[i]))
+			return 1;
+	}
 	return 0;
 }
 
@@ -257,6 +277,11 @@ void cgit_print_repolist(void)
 	char *section;
 	int sorted = 0;
 
+	if (!any_repos_visible()) {
+		cgit_print_error_page(404, "Not found", "No repositories found");
+		return;
+	}
+
 	if (ctx.cfg.enable_index_links)
 		++columns;
 	if (ctx.cfg.enable_index_owner)
@@ -278,9 +303,7 @@ void cgit_print_repolist(void)
 	html("<table summary='repository list' class='list nowrap'>");
 	for (i = 0; i < cgit_repolist.count; i++) {
 		ctx.repo = &cgit_repolist.repos[i];
-		if (ctx.repo->hide || ctx.repo->ignore)
-			continue;
-		if (!(is_match(ctx.repo) && is_in_url(ctx.repo)))
+		if (!is_visible(ctx.repo))
 			continue;
 		hits++;
 		if (hits <= ctx.qry.ofs)
@@ -340,9 +363,7 @@ void cgit_print_repolist(void)
 		html("</tr>\n");
 	}
 	html("</table>");
-	if (!hits)
-		cgit_print_error("No repositories found");
-	else if (hits > ctx.cfg.max_repo_count)
+	if (hits > ctx.cfg.max_repo_count)
 		print_pager(hits, ctx.cfg.max_repo_count, ctx.qry.search, ctx.qry.sort);
 	cgit_print_docend();
 }
