@@ -24,7 +24,7 @@
 
 struct cache_slot {
 	const char *key;
-	int keylen;
+	size_t keylen;
 	int ttl;
 	cache_fill_fn fn;
 	int cache_fd;
@@ -44,7 +44,7 @@ struct cache_slot {
 static int open_slot(struct cache_slot *slot)
 {
 	char *bufz;
-	int bufkeylen = -1;
+	ssize_t bufkeylen = -1;
 
 	slot->cache_fd = open(slot->cache_name, O_RDONLY);
 	if (slot->cache_fd == -1)
@@ -61,8 +61,9 @@ static int open_slot(struct cache_slot *slot)
 	if (bufz)
 		bufkeylen = bufz - slot->buf;
 
-	slot->match = bufkeylen == slot->keylen &&
-	    !memcmp(slot->key, slot->buf, bufkeylen + 1);
+	if (slot->key)
+		slot->match = bufkeylen == slot->keylen &&
+		    !memcmp(slot->key, slot->buf, bufkeylen + 1);
 
 	return 0;
 }
