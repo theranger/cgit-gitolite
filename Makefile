@@ -1,6 +1,6 @@
 all::
 
-CGIT_GITOLITE_VERSION = v0.1.1
+CGIT_GITOLITE_VERSION = v0.1.2
 CGIT_VERSION = v0.12
 CGIT_SCRIPT_NAME = cgit.cgi
 CGIT_SCRIPT_PATH = /var/www/htdocs/cgit
