@@ -25,7 +25,8 @@ static void add_entry(struct commit *commit, const char *host)
 	html_txt(info->subject);
 	html("</title>\n");
 	html("<updated>");
-	cgit_print_date(info->committer_date, FMT_ATOMDATE, 0);
+	html_txt(show_date(info->committer_date, 0,
+                    date_mode_from_type(DATE_ISO8601_STRICT)));
 	html("</updated>\n");
 	html("<author>\n");
 	if (info->author) {
@@ -50,7 +51,8 @@ static void add_entry(struct commit *commit, const char *host)
 	}
 	html("</author>\n");
 	html("<published>");
-	cgit_print_date(info->author_date, FMT_ATOMDATE, 0);
+	html_txt(show_date(info->author_date, 0,
+                    date_mode_from_type(DATE_ISO8601_STRICT)));
 	html("</published>\n");
 	if (host) {
 		char *pageurl;

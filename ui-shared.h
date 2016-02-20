@@ -61,8 +61,8 @@ __attribute__((format (printf,1,2)))
 extern void cgit_print_error(const char *fmt, ...);
 __attribute__((format (printf,1,0)))
 extern void cgit_vprint_error(const char *fmt, va_list ap);
-extern void cgit_print_date(time_t secs, const char *format, int local_time);
-extern void cgit_print_age(time_t t, time_t max_relative, const char *format);
+extern const struct date_mode *cgit_date_mode(enum date_mode_type type);
+extern void cgit_print_age(time_t t, int tz, time_t max_relative);
 extern void cgit_print_http_headers(void);
 extern void cgit_redirect(const char *url, bool permanent);
 extern void cgit_print_docstart(void);
