@@ -18,7 +18,7 @@ div#cgit a:hover {
 }
 
 div#cgit table {
-      border-collapse: collapse;
+	border-collapse: collapse;
 }
 
 div#cgit table#header {
@@ -83,6 +83,12 @@ div#cgit table.tabs td a {
 div#cgit table.tabs td a.active {
 	color: #000;
 	background-color: #ccc;
+}
+
+div#cgit table.tabs a[href^="http://"]:after, div#cgit table.tabs a[href^="https://"]:after {
+	content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAQAAAAnOwc2AAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfgAhcJDQY+gm2TAAAAHWlUWHRDb21tZW50AAAAAABDcmVhdGVkIHdpdGggR0lNUGQuZQcAAABbSURBVAhbY2BABs4MU4CwhYHBh2Erww4wrGFQZHjI8B8IgUIscJWyDHcggltQhI4zGDCcRwhChPggHIggP1QoAVmQkSETrGoHsiAEsACtBYN0oDAMbgU6EBcAAL2eHUt4XUU4AAAAAElFTkSuQmCC);
+	opacity: 0.5;
+	margin: 0 0 0 5px;
 }
 
 div#cgit table.tabs td.form {
@@ -797,9 +803,9 @@ div#cgit table.ssdiff td.head div.head {
 
 div#cgit table.ssdiff td.foot {
 	border-top: solid 1px #aaa;
-        border-left: none;
-        border-right: none;
-        border-bottom: none;
+	border-left: none;
+	border-right: none;
+	border-bottom: none;
 }
 
 div#cgit table.ssdiff td.space {
