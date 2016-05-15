@@ -12,8 +12,7 @@
 #include "html.h"
 
 static const char cgit_doctype[] =
-"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
-"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n";
+"<!DOCTYPE html>\n";
 
 static char *http_date(time_t t)
 {
@@ -723,7 +722,7 @@ void cgit_print_docstart(void)
 
 	char *host = cgit_hosturl();
 	html(cgit_doctype);
-	html("<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>\n");
+	html("<html lang='en'>\n");
 	html("<head>\n");
 	html("<title>");
 	html_txt(ctx.page.title);
@@ -792,13 +791,11 @@ void cgit_print_error_page(int code, const char *msg, const char *fmt, ...)
 	ctx.page.expires = ctx.cfg.cache_dynamic_ttl;
 	ctx.page.status = code;
 	ctx.page.statusmsg = msg;
-	cgit_print_http_headers();
-	cgit_print_docstart();
-	cgit_print_pageheader();
+	cgit_print_layout_start();
 	va_start(ap, fmt);
 	cgit_vprint_error(fmt, ap);
 	va_end(ap);
-	cgit_print_docend();
+	cgit_print_layout_end();
 }
 
 void cgit_print_layout_start(void)
@@ -940,14 +937,14 @@ static void print_header(void)
 		cgit_summary_link(ctx.repo->name, ctx.repo->name, NULL, NULL);
 		if (ctx.env.authenticated) {
 			html("</td><td class='form'>");
-			html("<form method='get' action=''>\n");
+			html("<form method='get'>\n");
 			cgit_add_hidden_formfields(0, 1, ctx.qry.page);
 			html("<select name='h' onchange='this.form.submit();'>\n");
 			for_each_branch_ref(print_branch_option, ctx.qry.head);
 			if (ctx.repo->enable_remote_branches)
 				for_each_remote_ref(print_branch_option, ctx.qry.head);
 			html("</select> ");
-			html("<input type='submit' name='' value='switch'/>");
+			html("<input type='submit' value='switch'/>");
 			html("</form>");
 		}
 	} else
