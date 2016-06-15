@@ -937,7 +937,7 @@ static void cgit_parse_args(int argc, const char **argv)
 
 	for (i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "--version")) {
-			printf("CGit %s | http://git.zx2c4.com/cgit/\n", CGIT_VERSION);
+			printf("CGit %s | https://git.zx2c4.com/cgit/\n", CGIT_VERSION);
 			printf("with gitolite patch %s | http://ivari.risk.ee/projects/cgit-gitolite\n\n", CGIT_GITOLITE_VERSION);
 			printf("Compiled in features:\n");
 #ifdef NO_LUA
