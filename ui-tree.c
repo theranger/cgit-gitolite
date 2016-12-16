@@ -155,6 +155,72 @@ static void print_object(const unsigned char *sha1, char *path, const char *base
 		print_text_buffer(basename, buf, size);
 }
 
+struct single_tree_ctx {
+	struct strbuf *path;
+	unsigned char sha1[GIT_SHA1_RAWSZ];
+	char *name;
+	size_t count;
+};
+
+static int single_tree_cb(const unsigned char *sha1, struct strbuf *base,
+			  const char *pathname, unsigned mode, int stage,
+			  void *cbdata)
+{
+	struct single_tree_ctx *ctx = cbdata;
+
+	if (++ctx->count > 1)
+		return -1;
+
+	if (!S_ISDIR(mode)) {
+		ctx->count = 2;
+		return -1;
+	}
+
+	ctx->name = xstrdup(pathname);
+	hashcpy(ctx->sha1, sha1);
+	strbuf_addf(ctx->path, "/%s", pathname);
+	return 0;
+}
+
+static void write_tree_link(const unsigned char *sha1, char *name,
+			    char *rev, struct strbuf *fullpath)
+{
+	size_t initial_length = fullpath->len;
+	struct tree *tree;
+	struct single_tree_ctx tree_ctx = {
+		.path = fullpath,
+		.count = 1,
+	};
+	struct pathspec paths = {
+		.nr = 0
+	};
+
+	hashcpy(tree_ctx.sha1, sha1);
+
+	while (tree_ctx.count == 1) {
+		cgit_tree_link(name, NULL, "ls-dir", ctx.qry.head, rev,
+			       fullpath->buf);
+
+		tree = lookup_tree(tree_ctx.sha1);
+		if (!tree)
+			return;
+
+		free(tree_ctx.name);
+		tree_ctx.name = NULL;
+		tree_ctx.count = 0;
+
+		read_tree_recursive(tree, "", 0, 1, &paths, single_tree_cb,
+				    &tree_ctx);
+
+		if (tree_ctx.count != 1)
+			break;
+
+		html(" / ");
+		name = tree_ctx.name;
+	}
+
+	strbuf_setlen(fullpath, initial_length);
+}
 
 static int ls_item(const unsigned char *sha1, struct strbuf *base,
 		const char *pathname, unsigned mode, int stage, void *cbdata)
@@ -187,8 +253,8 @@ static int ls_item(const unsigned char *sha1, struct strbuf *base,
 	if (S_ISGITLINK(mode)) {
 		cgit_submodule_link("ls-mod", fullpath.buf, sha1_to_hex(sha1));
 	} else if (S_ISDIR(mode)) {
-		cgit_tree_link(name, NULL, "ls-dir", ctx.qry.head,
-			       walk_tree_ctx->curr_rev, fullpath.buf);
+		write_tree_link(sha1, name, walk_tree_ctx->curr_rev,
+				&fullpath);
 	} else {
 		char *ext = strrchr(name, '.');
 		strbuf_addstr(&class, "ls-blob");
@@ -258,22 +324,25 @@ static int walk_tree(const unsigned char *sha1, struct strbuf *base,
 		const char *pathname, unsigned mode, int stage, void *cbdata)
 {
 	struct walk_tree_context *walk_tree_ctx = cbdata;
-	static char buffer[PATH_MAX];
 
 	if (walk_tree_ctx->state == 0) {
-		memcpy(buffer, base->buf, base->len);
-		strcpy(buffer + base->len, pathname);
-		if (strcmp(walk_tree_ctx->match_path, buffer))
+		struct strbuf buffer = STRBUF_INIT;
+
+		strbuf_addbuf(&buffer, base);
+		strbuf_addstr(&buffer, pathname);
+		if (strcmp(walk_tree_ctx->match_path, buffer.buf))
 			return READ_TREE_RECURSIVE;
 
 		if (S_ISDIR(mode)) {
 			walk_tree_ctx->state = 1;
-			set_title_from_path(buffer);
+			set_title_from_path(buffer.buf);
+			strbuf_release(&buffer);
 			ls_head();
 			return READ_TREE_RECURSIVE;
 		} else {
 			walk_tree_ctx->state = 2;
-			print_object(sha1, buffer, pathname, walk_tree_ctx->curr_rev);
+			print_object(sha1, buffer.buf, pathname, walk_tree_ctx->curr_rev);
+			strbuf_release(&buffer);
 			return 0;
 		}
 	}
@@ -288,7 +357,7 @@ static int walk_tree(const unsigned char *sha1, struct strbuf *base,
  */
 void cgit_print_tree(const char *rev, char *path)
 {
-	unsigned char sha1[20];
+	struct object_id oid;
 	struct commit *commit;
 	struct pathspec_item path_items = {
 		.match = path,
@@ -306,12 +375,12 @@ void cgit_print_tree(const char *rev, char *path)
 	if (!rev)
 		rev = ctx.qry.head;
 
-	if (get_sha1(rev, sha1)) {
+	if (get_oid(rev, &oid)) {
 		cgit_print_error_page(404, "Not found",
 			"Invalid revision name: %s", rev);
 		return;
 	}
-	commit = lookup_commit_reference(sha1);
+	commit = lookup_commit_reference(oid.hash);
 	if (!commit || parse_commit(commit)) {
 		cgit_print_error_page(404, "Not found",
 			"Invalid commit reference: %s", rev);

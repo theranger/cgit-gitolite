@@ -2,7 +2,7 @@ all::
 
 CGIT_GITOLITE_VERSION = v0.1.3
 
-CGIT_VERSION = v1.0
+CGIT_VERSION = v1.1
 CGIT_SCRIPT_NAME = cgit.cgi
 CGIT_SCRIPT_PATH = /var/www/htdocs/cgit
 CGIT_DATA_PATH = $(CGIT_SCRIPT_PATH)
@@ -16,7 +16,7 @@ htmldir = $(docdir)
 pdfdir = $(docdir)
 mandir = $(prefix)/share/man
 SHA1_HEADER = <openssl/sha.h>
-GIT_VER = 2.8.3
+GIT_VER = 2.10.2
 GIT_URL = https://www.kernel.org/pub/software/scm/git/git-$(GIT_VER).tar.gz
 INSTALL = install
 COPYTREE = cp -r
@@ -87,7 +87,7 @@ install: all
 	$(INSTALL) -m 0644 favicon.ico $(DESTDIR)$(CGIT_DATA_PATH)/favicon.ico
 	$(INSTALL) -m 0644 robots.txt $(DESTDIR)$(CGIT_DATA_PATH)/robots.txt
 	$(INSTALL) -m 0755 -d $(DESTDIR)$(filterdir)
-	$(COPYTREE)  filters/* $(DESTDIR)$(filterdir)
+	$(COPYTREE) filters/* $(DESTDIR)$(filterdir)
 
 install-doc: install-man install-html install-pdf
 

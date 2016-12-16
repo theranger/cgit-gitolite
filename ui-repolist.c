@@ -275,6 +275,7 @@ void cgit_print_repolist(void)
 	int i, columns = 3, hits = 0, header = 0;
 	char *last_section = NULL;
 	char *section;
+	char *repourl;
 	int sorted = 0;
 
 	if (!any_repos_visible()) {
@@ -320,7 +321,7 @@ void cgit_print_repolist(void)
 		    (last_section != NULL && section == NULL) ||
 		    (last_section != NULL && section != NULL &&
 		     strcmp(section, last_section)))) {
-			htmlf("<tr class='nohover'><td colspan='%d' class='reposection'>",
+			htmlf("<tr class='nohover-highlight'><td colspan='%d' class='reposection'>",
 			      columns);
 			html_txt(section);
 			html("</td></tr>");
@@ -330,7 +331,9 @@ void cgit_print_repolist(void)
 		      !sorted && section ? "sublevel-repo" : "toplevel-repo");
 		cgit_summary_link(ctx.repo->name, ctx.repo->name, NULL, NULL);
 		html("</td><td>");
-		html_link_open(cgit_repourl(ctx.repo->url), NULL, NULL);
+		repourl = cgit_repourl(ctx.repo->url);
+		html_link_open(repourl, NULL, NULL);
+		free(repourl);
 		html_ntxt(ctx.cfg.max_repodesc_len, ctx.repo->desc);
 		html_link_close();
 		html("</td><td>");
@@ -340,13 +343,15 @@ void cgit_print_repolist(void)
 				html_txt(ctx.repo->owner);
 				cgit_close_filter(ctx.repo->owner_filter);
 			} else {
+				char *currenturl = cgit_currenturl();
 				html("<a href='");
-				html_attr(cgit_currenturl());
+				html_attr(currenturl);
 				html("?q=");
 				html_url_arg(ctx.repo->owner);
 				html("'>");
 				html_txt(ctx.repo->owner);
 				html("</a>");
+				free(currenturl);
 			}
 			html("</td><td>");
 		}

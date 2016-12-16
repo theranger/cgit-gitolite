@@ -66,10 +66,11 @@ char *cgit_hosturl(void)
 
 char *cgit_currenturl(void)
 {
-	if (!ctx.qry.url)
-		return xstrdup(cgit_rooturl());
 	const char *root = cgit_rooturl();
 	size_t len = strlen(root);
+
+	if (!ctx.qry.url)
+		return xstrdup(root);
 	if (len && root[len - 1] == '/')
 		return fmtalloc("%s%s", root, ctx.qry.url);
 	return fmtalloc("%s/%s", root, ctx.qry.url);
@@ -253,7 +254,7 @@ static char *repolink(const char *title, const char *class, const char *page,
 		}
 		delim = "&amp;";
 	}
-	if (head && strcmp(head, ctx.repo->defbranch)) {
+	if (head && ctx.repo->defbranch && strcmp(head, ctx.repo->defbranch)) {
 		html(delim);
 		html("h=");
 		html_url_arg(head);
@@ -349,14 +350,14 @@ void cgit_log_link(const char *name, const char *title, const char *class,
 void cgit_commit_link(char *name, const char *title, const char *class,
 		      const char *head, const char *rev, const char *path)
 {
+	char *delim;
+
 	if (strlen(name) > ctx.cfg.max_msg_len && ctx.cfg.max_msg_len >= 15) {
 		name[ctx.cfg.max_msg_len] = '\0';
 		name[ctx.cfg.max_msg_len - 1] = '.';
 		name[ctx.cfg.max_msg_len - 2] = '.';
 		name[ctx.cfg.max_msg_len - 3] = '.';
 	}
-
-	char *delim;
 
 	delim = repolink(title, class, "commit", head, path);
 	if (rev && ctx.qry.head && strcmp(rev, ctx.qry.head)) {
@@ -714,13 +715,14 @@ static void print_rel_vcs_link(const char *url)
 
 void cgit_print_docstart(void)
 {
+	char *host = cgit_hosturl();
+
 	if (ctx.cfg.embedded) {
 		if (ctx.cfg.header)
 			html_include(ctx.cfg.header);
 		return;
 	}
 
-	char *host = cgit_hosturl();
 	html(cgit_doctype);
 	html("<html lang='en'>\n");
 	html("<head>\n");
@@ -1069,18 +1071,34 @@ void cgit_print_filemode(unsigned short mode)
 	html_fileperm(mode);
 }
 
+void cgit_compose_snapshot_prefix(struct strbuf *filename, const char *base,
+				  const char *ref)
+{
+	struct object_id oid;
+
+	/*
+	 * Prettify snapshot names by stripping leading "v" or "V" if the tag
+	 * name starts with {v,V}[0-9] and the prettify mapping is injective,
+	 * i.e. each stripped tag can be inverted without ambiguities.
+	 */
+	if (get_oid(fmt("refs/tags/%s", ref), &oid) == 0 &&
+	    (ref[0] == 'v' || ref[0] == 'V') && isdigit(ref[1]) &&
+	    ((get_oid(fmt("refs/tags/%s", ref + 1), &oid) == 0) +
+	     (get_oid(fmt("refs/tags/v%s", ref + 1), &oid) == 0) +
+	     (get_oid(fmt("refs/tags/V%s", ref + 1), &oid) == 0) == 1))
+		ref++;
+
+	strbuf_addf(filename, "%s-%s", base, ref);
+}
+
 void cgit_print_snapshot_links(const char *repo, const char *head,
 			       const char *hex, int snapshots)
 {
 	const struct cgit_snapshot_format* f;
 	struct strbuf filename = STRBUF_INIT;
 	size_t prefixlen;
-	unsigned char sha1[20];
 
-	if (get_sha1(fmt("refs/tags/%s", hex), sha1) == 0 &&
-	    (hex[0] == 'v' || hex[0] == 'V') && isdigit(hex[1]))
-		hex++;
-	strbuf_addf(&filename, "%s-%s", cgit_repobasename(repo), hex);
+	cgit_compose_snapshot_prefix(&filename, cgit_repobasename(repo), hex);
 	prefixlen = filename.len;
 	for (f = cgit_snapshot_formats; f->suffix; f++) {
 		if (!(snapshots & f->bit))

@@ -134,11 +134,31 @@ div#cgit table.list tr.logheader {
 	background: #eee;
 }
 
+div#cgit table.list tr:nth-child(even) {
+	background: #f7f7f7;
+}
+
+div#cgit table.list tr:nth-child(odd) {
+	background: white;
+}
+
 div#cgit table.list tr:hover {
 	background: #eee;
 }
 
+div#cgit table.list tr.nohover {
+	background: white;
+}
+
 div#cgit table.list tr.nohover:hover {
+	background: white;
+}
+
+div#cgit table.list tr.nohover-highlight:hover:nth-child(even) {
+	background: #f7f7f7;
+}
+
+div#cgit table.list tr.nohover-highlight:hover:nth-child(odd) {
 	background: white;
 }
 
@@ -590,19 +610,31 @@ div#cgit span.age-months {
 div#cgit span.age-years {
 	color: #bbb;
 }
+
+div#cgit span.insertions {
+	color: #080;
+}
+
+div#cgit span.deletions {
+	color: #800;
+}
+
 div#cgit div.footer {
 	margin-top: 0.5em;
 	text-align: center;
 	font-size: 80%;
 	color: #ccc;
 }
+
 div#cgit div.footer a {
 	color: #ccc;
 	text-decoration: none;
 }
+
 div#cgit div.footer a:hover {
 	text-decoration: underline;
 }
+
 div#cgit a.branch-deco {
 	color: #000;
 	margin: 0px 0.5em;
@@ -610,6 +642,7 @@ div#cgit a.branch-deco {
 	background-color: #88ff88;
 	border: solid 1px #007700;
 }
+
 div#cgit a.tag-deco {
 	color: #000;
 	margin: 0px 0.5em;
@@ -617,6 +650,7 @@ div#cgit a.tag-deco {
 	background-color: #ffff88;
 	border: solid 1px #777700;
 }
+
 div#cgit a.remote-deco {
 	color: #000;
 	margin: 0px 0.5em;
@@ -624,6 +658,7 @@ div#cgit a.remote-deco {
 	background-color: #ccccff;
 	border: solid 1px #000077;
 }
+
 div#cgit a.deco {
 	color: #000;
 	margin: 0px 0.5em;

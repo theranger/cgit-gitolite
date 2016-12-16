@@ -49,7 +49,7 @@ static void inspect_files(struct diff_filepair *pair)
 
 	files++;
 	if (ctx.repo->enable_log_linecount)
-		cgit_diff_files(pair->one->sha1, pair->two->sha1, &old_size,
+		cgit_diff_files(&pair->one->oid, &pair->two->oid, &old_size,
 				&new_size, &binary, 0, ctx.qry.ignorews,
 				count_lines);
 }
@@ -258,12 +258,14 @@ static void print_commit(struct commit *commit, struct rev_info *revs)
 	if (ctx.repo->enable_log_filecount)
 		htmlf("</td><td>%d", files);
 	if (ctx.repo->enable_log_linecount)
-		htmlf("</td><td>-%d/+%d", rem_lines, add_lines);
+		htmlf("</td><td><span class='deletions'>-%d</span>/"
+			"<span class='insertions'>+%d</span>", rem_lines, add_lines);
 
 	html("</td></tr>\n");
 
-	if (revs->graph || ctx.qry.showmsg) { /* Print a second table row */
-		html("<tr class='nohover'>");
+	if ((revs->graph && !graph_is_commit_finished(revs->graph))
+			|| ctx.qry.showmsg) { /* Print a second table row */
+		html("<tr class='nohover-highlight'>");
 
 		if (ctx.qry.showmsg) {
 			/* Concatenate commit message + notes in msgbuf */
@@ -324,7 +326,7 @@ static const char *disambiguate_ref(const char *ref, int *must_free_result)
 	struct strbuf longref = STRBUF_INIT;
 
 	strbuf_addf(&longref, "refs/heads/%s", ref);
-	if (get_sha1(longref.buf, oid.hash) == 0) {
+	if (get_oid(longref.buf, &oid) == 0) {
 		*must_free_result = 1;
 		return strbuf_detach(&longref, NULL);
 	}

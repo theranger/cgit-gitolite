@@ -16,20 +16,24 @@ void cgit_print_patch(const char *new_rev, const char *old_rev,
 {
 	struct rev_info rev;
 	struct commit *commit;
-	unsigned char new_rev_sha1[20], old_rev_sha1[20];
+	struct object_id new_rev_oid, old_rev_oid;
 	char rev_range[2 * 40 + 3];
-	char *rev_argv[] = { NULL, "--reverse", "--format=email", rev_range };
+	const char *rev_argv[] = { NULL, "--reverse", "--format=email", rev_range, "--", prefix };
+	int rev_argc = ARRAY_SIZE(rev_argv);
 	char *patchname;
+
+	if (!prefix)
+		rev_argc--;
 
 	if (!new_rev)
 		new_rev = ctx.qry.head;
 
-	if (get_sha1(new_rev, new_rev_sha1)) {
+	if (get_oid(new_rev, &new_rev_oid)) {
 		cgit_print_error_page(404, "Not found",
 				"Bad object id: %s", new_rev);
 		return;
 	}
-	commit = lookup_commit_reference(new_rev_sha1);
+	commit = lookup_commit_reference(new_rev_oid.hash);
 	if (!commit) {
 		cgit_print_error_page(404, "Not found",
 				"Bad commit reference: %s", new_rev);
@@ -37,27 +41,27 @@ void cgit_print_patch(const char *new_rev, const char *old_rev,
 	}
 
 	if (old_rev) {
-		if (get_sha1(old_rev, old_rev_sha1)) {
+		if (get_oid(old_rev, &old_rev_oid)) {
 			cgit_print_error_page(404, "Not found",
 					"Bad object id: %s", old_rev);
 			return;
 		}
-		if (!lookup_commit_reference(old_rev_sha1)) {
+		if (!lookup_commit_reference(old_rev_oid.hash)) {
 			cgit_print_error_page(404, "Not found",
 					"Bad commit reference: %s", old_rev);
 			return;
 		}
 	} else if (commit->parents && commit->parents->item) {
-		hashcpy(old_rev_sha1, commit->parents->item->object.oid.hash);
+		oidcpy(&old_rev_oid, &commit->parents->item->object.oid);
 	} else {
-		hashclr(old_rev_sha1);
+		oidclr(&old_rev_oid);
 	}
 
-	if (is_null_sha1(old_rev_sha1)) {
-		memcpy(rev_range, sha1_to_hex(new_rev_sha1), 41);
+	if (is_null_oid(&old_rev_oid)) {
+		memcpy(rev_range, oid_to_hex(&new_rev_oid), GIT_SHA1_HEXSZ + 1);
 	} else {
-		sprintf(rev_range, "%s..%s", sha1_to_hex(old_rev_sha1),
-			sha1_to_hex(new_rev_sha1));
+		sprintf(rev_range, "%s..%s", oid_to_hex(&old_rev_oid),
+			oid_to_hex(&new_rev_oid));
 	}
 
 	patchname = fmt("%s.patch", rev_range);
@@ -79,7 +83,9 @@ void cgit_print_patch(const char *new_rev, const char *old_rev,
 	rev.max_parents = 1;
 	rev.diffopt.output_format |= DIFF_FORMAT_DIFFSTAT |
 			DIFF_FORMAT_PATCH | DIFF_FORMAT_SUMMARY;
-	setup_revisions(ARRAY_SIZE(rev_argv), (const char **)rev_argv, &rev,
+	if (prefix)
+		rev.diffopt.stat_sep = fmt("(limited to '%s')\n\n", prefix);
+	setup_revisions(ARRAY_SIZE(rev_argv), rev_argv, &rev,
 			NULL);
 	prepare_revision_walk(&rev);
 

@@ -92,7 +92,7 @@ static char *longest_common_subsequence(char *A, char *B)
 static int line_from_hunk(char *line, char type)
 {
 	char *buf1, *buf2;
-	int len;
+	int len, res;
 
 	buf1 = strchr(line, type);
 	if (buf1 == NULL)
@@ -105,7 +105,7 @@ static int line_from_hunk(char *line, char type)
 	buf2 = xmalloc(len + 1);
 	strncpy(buf2, buf1, len);
 	buf2[len] = '\0';
-	int res = atoi(buf2);
+	res = atoi(buf2);
 	free(buf2);
 	return res;
 }
@@ -229,7 +229,7 @@ static void print_ssdiff_line(char *class,
 	if (old_line_no > 0) {
 		struct diff_filespec *old_file = cgit_get_current_old_file();
 		char *lineno_str = fmt("n%d", old_line_no);
-		char *id_str = fmt("id=%s#%s", is_null_sha1(old_file->sha1)?"HEAD":sha1_to_hex(old_rev_sha1), lineno_str);
+		char *id_str = fmt("id=%s#%s", is_null_oid(&old_file->oid)?"HEAD":oid_to_hex(old_rev_oid), lineno_str);
 		char *fileurl = cgit_fileurl(ctx.repo->url, "tree", old_file->path, id_str);
 		html("<td class='lineno'><a href='");
 		html(fileurl);
@@ -252,7 +252,7 @@ static void print_ssdiff_line(char *class,
 	if (new_line_no > 0) {
 		struct diff_filespec *new_file = cgit_get_current_new_file();
 		char *lineno_str = fmt("n%d", new_line_no);
-		char *id_str = fmt("id=%s#%s", is_null_sha1(new_file->sha1)?"HEAD":sha1_to_hex(new_rev_sha1), lineno_str);
+		char *id_str = fmt("id=%s#%s", is_null_oid(&new_file->oid)?"HEAD":oid_to_hex(new_rev_oid), lineno_str);
 		char *fileurl = cgit_fileurl(ctx.repo->url, "tree", new_file->path, id_str);
 		html("<td class='lineno'><a href='");
 		html(fileurl);

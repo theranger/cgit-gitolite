@@ -336,8 +336,6 @@ extern int chk_non_negative(int result, char *msg);
 
 extern char *trim_end(const char *str, char c);
 extern char *ensure_end(const char *str, char c);
-extern char *strlpart(char *txt, int maxlen);
-extern char *strrpart(char *txt, int maxlen);
 
 extern void strbuf_ensure_end(struct strbuf *sb, char c);
 
@@ -346,19 +344,20 @@ extern void cgit_free_reflist_inner(struct reflist *list);
 extern int cgit_refs_cb(const char *refname, const struct object_id *oid,
 			int flags, void *cb_data);
 
-extern void *cgit_free_commitinfo(struct commitinfo *info);
+extern void cgit_free_commitinfo(struct commitinfo *info);
+extern void cgit_free_taginfo(struct taginfo *info);
 
 void cgit_diff_tree_cb(struct diff_queue_struct *q,
 		       struct diff_options *options, void *data);
 
-extern int cgit_diff_files(const unsigned char *old_sha1,
-			   const unsigned char *new_sha1,
+extern int cgit_diff_files(const struct object_id *old_oid,
+			   const struct object_id *new_oid,
 			   unsigned long *old_size, unsigned long *new_size,
 			   int *binary, int context, int ignorews,
 			   linediff_fn fn);
 
-extern void cgit_diff_tree(const unsigned char *old_sha1,
-			   const unsigned char *new_sha1,
+extern void cgit_diff_tree(const struct object_id *old_oid,
+			   const struct object_id *new_oid,
 			   filepair_fn fn, const char *prefix, int ignorews);
 
 extern void cgit_diff_commit(struct commit *commit, filepair_fn fn,
